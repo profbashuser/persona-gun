@@ -1,0 +1,18 @@
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://ocoa4jgnbp7i"]
+
+[ext_resource type="FontFile" uid="uid://kn6my1vc88pk" path="res://assets/VCR_OSD_MONO_1.001.ttf" id="1_3j1p3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l1fu3"]
+bg_color = Color(0.6, 0.6, 0.6, 0.27451)
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wwrlr"]
+anti_aliasing = false
+
+[resource]
+default_font = ExtResource("1_3j1p3")
+ProgressBar/colors/font_color = Color(0, 0, 0, 1)
+ProgressBar/colors/font_outline_color = Color(0, 0, 0, 1)
+ProgressBar/colors/font_shadow_color = Color(0, 0, 0, 1)
+ProgressBar/styles/background = SubResource("StyleBoxFlat_l1fu3")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_wwrlr")
