@@ -1,31 +1,62 @@
-[gd_scene load_steps=17 format=3 uid="uid://6wttxiw32xg4"]
+[gd_scene load_steps=11 format=3 uid="uid://6wttxiw32xg4"]
 
 [ext_resource type="Script" path="res://src/player.gd" id="1_tubtu"]
 [ext_resource type="Script" path="res://src/resources/MovementData.gd" id="2_7ak4f"]
 [ext_resource type="Theme" uid="uid://ocoa4jgnbp7i" path="res://assets/hud.thm.tres" id="2_hhl63"]
-[ext_resource type="Script" path="res://src/hud.gd" id="3_6rjq2"]
-[ext_resource type="Shader" path="res://src/shaders/cursor.gdshader" id="4_fxmdl"]
 [ext_resource type="PackedScene" uid="uid://ct1uafrigd752" path="res://scenes/guns/debug.tscn" id="4_ibshg"]
-[ext_resource type="Texture2D" uid="uid://dm7q2qteie713" path="res://assets/crosshairs/crosshair_base.png" id="4_nfqxg"]
-[ext_resource type="Script" path="res://src/hand.gd" id="4_y5k4t"]
 
 [sub_resource type="Resource" id="Resource_s1wph"]
 script = ExtResource("2_7ak4f")
-SENSITIVITY = 0.01
 MAX_HEALTH = 100.0
 WALK_SPEED = 8.0
 WALLRUN_SPEED = 9.0
 SLIDE_SPEED = 9.6
 JUMP_VELOCITY = 4.5
-MAX_JUMPS = 2
 GRAVITY = 9.8
 BOB_FREQ = 2.0
 BOB_AMP = 0.08
-VIEW_TILT = 0.1
+SENSITIVITY = 0.01
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_h0015"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sueix"]
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_50cc2"]
+points = PackedVector3Array(-0.125207, -0.532801, -0.480507, 0.0227831, 0.47607, 0.498884, 0.169713, 0.559144, 0.464172, 0.231051, -0.803591, 0.320455, 0.40741, 0.651043, -0.243523, -0.482789, 0.594843, 0.0822132, -0.362868, -0.682312, 0.289697, 0.469044, -0.654529, -0.0662713, -0.127444, 0.842701, -0.338103, -0.393435, -0.683942, -0.244717, 0.438255, 0.623309, 0.200849, 0.0841477, 0.977454, 0.114795, -0.0682023, -0.976458, -0.12927, 0.20055, -0.563129, -0.451454, -0.185527, 0.595453, -0.453475, -0.273363, 0.592268, 0.407754, -0.00693649, -0.476823, 0.49966, 0.375821, -0.588614, 0.316955, 0.111579, 0.563059, -0.481177, -0.41725, 0.527866, -0.270497, -0.484546, -0.596972, -0.0665097, -0.279747, 0.908561, 0.0533361, -0.250197, -0.880712, 0.205319, 0.263647, -0.902771, -0.127394, 0.293368, 0.871526, -0.157196, 0.373412, -0.526319, -0.328246, 0.499663, 0.476641, -0.00688856, 0.0531056, 0.875001, 0.324703, -0.154543, -0.590854, 0.465879, -0.0972799, -0.782358, -0.398188, -0.387649, -0.498171, 0.31565, -0.30068, -0.587995, -0.388901)
+
+[sub_resource type="GDScript" id="GDScript_mxw8r"]
+script/source = "extends Control
+
+var player
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	player = get_parent().get_parent().get_parent()
+	$HealthBar.max_value = player.data.MAX_HEALTH
+	
+	#$ProgressBar.value = player.data.MAX_HEALTH
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	
+	
+	var hpbar:ProgressBar = $HealthBar
+	
+	if player.health == player.data.MAX_HEALTH:
+		hpbar.value = move_toward(hpbar.value, player.health, delta * 20.0)
+	
+	hpbar.value = lerp(hpbar.value,player.health, delta * 8.0)
+	var perc = floor((hpbar.value / hpbar.max_value) * 100)
+	
+	$HealthBar/PercentageLabel.text = str(perc) + '%'
+	
+	$HealthBar/SpeedLabel.text = str(Main.fround(player.velocity.length(), 2)) 
+	
+	if player.is_dead:
+		$deathstuff.visible = true
+	else:
+		$deathstuff.visible = false
+	
+"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7xnid"]
 bg_color = Color(0.6, 0.6, 0.6, 0.27451)
@@ -37,34 +68,6 @@ bg_color = Color(1, 1, 1, 1)
 skew = Vector2(0.1, 0)
 anti_aliasing = false
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_nxk85"]
-shader = ExtResource("4_fxmdl")
-
-[sub_resource type="GDScript" id="GDScript_oart8"]
-script/source = "extends TextureRect
-
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	# Position
-	position.x = ((get_viewport_rect().size.x)/2) - size.x / 2
-	position.y = ((get_viewport_rect().size.y)/2) - size.y / 2
-	
-	size.x = lerp(size.x, 20.0, delta * 8.0)
-	size.y = lerp(size.y, 20.0, delta * 8.0)
-
-func push(pusham):
-	size.x = pusham
-	size.y = pusham
-"
-
-[sub_resource type="BoxMesh" id="BoxMesh_1gfvd"]
-
 [node name="Player" type="CharacterBody3D" groups=["Player"]]
 floor_stop_on_slope = false
 script = ExtResource("1_tubtu")
@@ -75,25 +78,23 @@ visible = false
 mesh = SubResource("CapsuleMesh_h0015")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("CapsuleShape3D_sueix")
+shape = SubResource("ConvexPolygonShape3D_50cc2")
 
 [node name="Head" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
 current = true
-fov = 110.0
+fov = 90.0
 
-[node name="Hud" type="CanvasLayer" parent="Head/Camera3D"]
-
-[node name="HudRoot" type="Control" parent="Head/Camera3D/Hud"]
+[node name="Hud" type="Control" parent="Head/Camera3D"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("3_6rjq2")
+script = SubResource("GDScript_mxw8r")
 
-[node name="HealthBar" type="ProgressBar" parent="Head/Camera3D/Hud/HudRoot"]
+[node name="HealthBar" type="ProgressBar" parent="Head/Camera3D/Hud"]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -112,7 +113,7 @@ allow_greater = true
 allow_lesser = true
 show_percentage = false
 
-[node name="PercentageLabel" type="Label" parent="Head/Camera3D/Hud/HudRoot/HealthBar"]
+[node name="PercentageLabel" type="Label" parent="Head/Camera3D/Hud/HealthBar"]
 layout_mode = 0
 offset_top = -35.0
 offset_right = 373.0
@@ -121,7 +122,7 @@ theme = ExtResource("2_hhl63")
 theme_override_font_sizes/font_size = 30
 text = "50%"
 
-[node name="SpeedLabel" type="Label" parent="Head/Camera3D/Hud/HudRoot/HealthBar"]
+[node name="SpeedLabel" type="Label" parent="Head/Camera3D/Hud/HealthBar"]
 layout_mode = 0
 offset_top = 22.0
 offset_right = 366.0
@@ -130,13 +131,13 @@ theme = ExtResource("2_hhl63")
 theme_override_font_sizes/font_size = 15
 text = "123123"
 
-[node name="deathstuff" type="Control" parent="Head/Camera3D/Hud/HudRoot"]
+[node name="deathstuff" type="Control" parent="Head/Camera3D/Hud"]
 visible = false
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="ColorRect" type="ColorRect" parent="Head/Camera3D/Hud/HudRoot/deathstuff"]
+[node name="ColorRect" type="ColorRect" parent="Head/Camera3D/Hud/deathstuff"]
 texture_filter = 1
 layout_mode = 0
 offset_right = 1280.0
@@ -144,7 +145,7 @@ offset_bottom = 720.0
 mouse_filter = 2
 color = Color(0, 0, 0, 0.254902)
 
-[node name="deathlabel" type="Label" parent="Head/Camera3D/Hud/HudRoot/deathstuff"]
+[node name="deathlabel" type="Label" parent="Head/Camera3D/Hud/deathstuff"]
 layout_mode = 0
 offset_right = 1280.0
 offset_bottom = 263.0
@@ -154,31 +155,11 @@ text = "YOU ARE DEAD"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Crosshair" type="TextureRect" parent="Head/Camera3D/Hud"]
-texture_filter = 1
-material = SubResource("ShaderMaterial_nxk85")
-offset_left = 1240.0
-offset_top = 680.0
-offset_right = 1280.0
-offset_bottom = 720.0
-mouse_filter = 2
-texture = ExtResource("4_nfqxg")
-expand_mode = 1
-script = SubResource("GDScript_oart8")
-
 [node name="Aimcast" type="RayCast3D" parent="Head/Camera3D"]
 target_position = Vector3(0, 0, -50)
 
 [node name="Hand" type="Node3D" parent="Head/Camera3D"]
-transform = Transform3D(0.819152, 0, -0.573576, 0, 1, 0, 0.573576, 0, 0.819152, 0, -0.4, 0)
-script = ExtResource("4_y5k4t")
-swayLeft = Vector3(0, -0.2, 0)
-swayRight = Vector3(0, 0.2, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Head/Camera3D/Hand"]
-transform = Transform3D(0.1, 0, -2.68221e-07, 0, 0.1, 0, 3.35276e-08, 0, 0.9, 0, 7.45058e-09, 0)
-mesh = SubResource("BoxMesh_1gfvd")
-skeleton = NodePath("")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="debug" parent="Head/Camera3D/Hand" instance=ExtResource("4_ibshg")]
 

@@ -1,3 +1,10 @@
+/*
+	Original by marmitoTH
+	https://github.com/marmitoTH/godot-psx-shaders
+	
+	Ported to godot 4
+*/
+
 shader_type spatial; 
 render_mode skip_vertex_transform, diffuse_lambert_wrap, ambient_light_disabled;
 
