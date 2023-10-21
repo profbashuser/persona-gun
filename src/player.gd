@@ -4,6 +4,7 @@ extends CharacterBody3D
 @export var data: MovementData
 
 @onready var health: float = data.MAX_HEALTH
+var is_dead:bool = false
 
 var speed: float
 var jumps:int
@@ -16,9 +17,7 @@ var slide_vec:Vector3 = Vector3.ZERO
 var slide_vec_off:Vector3
 
 var weapon_idx:int = 0
-var gun
-
-var is_dead:bool = false
+var gun: Node
 
 var t_bob:float = 0.0
 
@@ -52,7 +51,7 @@ func _unhandled_input(event: InputEvent) -> void:
 					weapon_idx = 0
 				
 			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-				if weapon_idx > 1:
+				if weapon_idx > 0:
 					weapon_idx -= 1
 				else:
 					weapon_idx = $Head/Camera3D/Hand.get_child_count() - 1
@@ -70,7 +69,7 @@ func _physics_process(delta: float) -> void:
 	
 	
 		# Handle Jump.
-		if Input.is_action_just_pressed("jump") and !jumps > data.MAX_JUMPS:
+		if (Input.is_action_just_pressed("jump") and !jumps > data.BONUS_JUMPS) || (Input.is_action_pressed("jump") and !jumps > 0) && !wallrunning:
 			velocity.y = data.JUMP_VELOCITY
 			jumps += 1
 
@@ -78,25 +77,25 @@ func _physics_process(delta: float) -> void:
 		var direction = (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 		if is_on_floor():
 			if direction:
-				velocity.x = lerp(velocity.x, direction.x * speed, delta * 9.0) # velocity.x = direction.x * speed
-				velocity.z = lerp(velocity.z, direction.z * speed, delta * 9.0) # velocity.z = direction.z * speed
+				velocity.x = direction.x * speed
+				velocity.z = direction.z * speed
+				#velocity.x = lerp(velocity.x, direction.x * speed, delta * data.GROUND_ACCEL) # velocity.x = direction.x * speed
+				#velocity.z = lerp(velocity.z, direction.z * speed, delta * data.GROUND_ACCEL) # velocity.z = direction.z * speed
 			else:
-				velocity.x = lerp(velocity.x, direction.x * speed, delta * 7.0)
-				velocity.z = lerp(velocity.z, direction.z * speed, delta * 7.0)
+				velocity.x = lerp(velocity.x, direction.x * speed, delta * data.GROUND_DECEL)
+				velocity.z = lerp(velocity.z, direction.z * speed, delta * data.GROUND_DECEL)
 		else:
-			velocity.x = lerp(velocity.x, direction.x * speed, delta * 3.0)
-			velocity.z = lerp(velocity.z, direction.z * speed, delta * 3.0)
+			velocity.x = lerp(velocity.x, direction.x * speed, delta * data.AIR_LERP)
+			velocity.z = lerp(velocity.z, direction.z * speed, delta * data.AIR_LERP)
 		
 		if is_on_wall_only():
 			if input_dir.y != 0 && input_dir.x != 0:
 				wall_normal = get_slide_collision(0)
 				wallrunning = true
+				
 				velocity.y = clamp(velocity.y, -.5, 1000000)
-				var slide_speed:float = data.SLIDE_SPEED
-				if speed/1.1 > data.SLIDE_SPEED:
-					slide_speed = speed
-				speed = slide_speed
-				if Input.is_action_just_pressed("jump"):
+				
+				if Input.is_action_pressed("jump"):
 					velocity = wall_normal.get_normal() * speed
 					velocity.y = data.JUMP_VELOCITY
 		else:
@@ -109,25 +108,30 @@ func _physics_process(delta: float) -> void:
 				else:
 					slide_vec = (head.transform.basis * Vector3(0, 0, -1)).normalized()
 			sliding = true
-		elif !$SlideCast.is_colliding():
+		elif Input.is_action_just_released("slide") && !$SlideCast.is_colliding():
 			sliding = false
 		
 		if sliding:
-			collision.shape.height = lerp(collision.shape.height, 1.0,delta * 9.0)
+			collision.shape.height = move_toward(collision.shape.height, 1.0,delta * 9.0)
 			head.position.y = lerp(head.position.y, 0.0, delta * 8.0)
 			
 			var slide_speed:float = data.SLIDE_SPEED
 			if speed/1.1 > data.SLIDE_SPEED:
 				slide_speed = speed
 			
-			slide_speed += get_floor_angle()
+			slide_speed += get_floor_angle()*0.1
 			
 			# Slide force
 			velocity.x = slide_vec.x * (slide_speed)
 			velocity.z = slide_vec.z * (slide_speed)
 			
-			if Input.is_action_just_pressed("jump"):
-				speed *= (1.1)
+			if is_on_floor():
+				speed = slide_speed
+			
+			
+			if Input.is_action_pressed("jump") && is_on_floor():
+				sliding = false
+				speed = slide_speed + 1
 			
 		else:
 			collision.shape.height = lerp(collision.shape.height, 2.0, delta * 9.0)
@@ -140,14 +144,16 @@ func _physics_process(delta: float) -> void:
 			gun.shoot($Head/Camera3D/Aimcast)
 		
 		
-		t_bob += delta * velocity.length() * (float(is_on_floor())) * float(!sliding)
+		t_bob += delta * velocity.length() * (float(is_on_floor())) * float(!is_on_wall()) * float(!sliding)
 		camera.transform.origin = _headbob(t_bob)
 		
-		var desired_tilt = (-input_dir.x) * 0.1 + float(sliding) * 0.1
+		#var desired_tilt = cos(t_bob * data.BOB_FREQ / 2) * data.BOB_AMP/2
+		var desired_tilt = ((-input_dir.x) * data.VIEW_TILT) * float(!sliding) + float(sliding) * 0.1
 		if wallrunning:
 			desired_tilt = (input_dir.x) * 0.1
 		
-		head.rotation.z = lerp(head.rotation.z, desired_tilt, delta * 7.0) # cos(t_bob * data.BOB_FREQ / 4) * data.BOB_AMP/2
+		
+		head.rotation.z = lerp(head.rotation.z, desired_tilt, delta * data.TILT_LERP)
 
 	move_and_slide()
 		

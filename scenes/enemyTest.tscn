@@ -24,7 +24,6 @@ shape = SubResource("CapsuleShape3D_w22x7")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 max_speed = 10000.0
-debug_enabled = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 visible = false

@@ -12,7 +12,7 @@ config_version=5
 
 config/name="fred"
 run/main_scene="res://scenes/world.tscn"
-config/features=PackedStringArray("4.1", "Forward Plus")
+config/features=PackedStringArray("4.1", "C#", "Forward Plus")
 boot_splash/bg_color=Color(0.0980392, 0.129412, 0.184314, 1)
 boot_splash/show_image=false
 config/icon="res://icon.svg"
@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 
 Main="*res://src/main.gd"
 Konsole="*res://scenes/konsole.tscn"
+Globals="*res://src/globals.gd"
 
 [display]
 
@@ -86,7 +87,19 @@ enter={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194309,"key_label":0,"unicode":0,"echo":false,"script":null)
 ]
 }
+dash={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194325,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
 
 [physics]
 
 common/physics_ticks_per_second=240
+
+[shader_globals]
+
+viewmodel_fov={
+"type": "float",
+"value": 70.0
+}

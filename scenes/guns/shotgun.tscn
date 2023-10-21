@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://d0sll4jlq0j8f"]
+
+[ext_resource type="PackedScene" uid="uid://bkm6rl23rv7eu" path="res://assets/guns/shotgun.blend" id="1_qyl7t"]
+[ext_resource type="Shader" path="res://src/shaders/viewmodel.gdshader" id="2_m068d"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1vw2m"]
+render_priority = 10
+shader = ExtResource("2_m068d")
+shader_parameter/alpha = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_255uw"]
+next_pass = SubResource("ShaderMaterial_1vw2m")
+disable_receive_shadows = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xmgaf"]
+next_pass = SubResource("ShaderMaterial_1vw2m")
+disable_receive_shadows = true
+
+[node name="shotgun" instance=ExtResource("1_qyl7t")]
+
+[node name="Handle" parent="." index="0"]
+cast_shadow = 0
+surface_material_override/0 = SubResource("StandardMaterial3D_255uw")
+
+[node name="Circle_001" parent="." index="1"]
+cast_shadow = 0
+surface_material_override/0 = SubResource("StandardMaterial3D_xmgaf")
+
+[node name="animationcontainer" type="AnimationPlayer" parent="." index="2"]

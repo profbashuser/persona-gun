@@ -19,6 +19,10 @@ point_count = 2
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kgbbx"]
 albedo_color = Color(0.929412, 0, 0.176471, 1)
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
 use_particle_trails = true
 
 [sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_sunou"]

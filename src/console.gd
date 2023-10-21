@@ -42,21 +42,26 @@ func trace(args):
 func spawn(args):
 	if len(args) == 4:
 		
-		var instance = enemy.instantiate()
-
-		instance.position = Vector3(
+		var pos = Vector3(
 			float(args[1]),
 			float(args[2]) + 1,
 			float(args[3])
 		)
 		
+		var instance = enemy.instantiate()
+
+		instance.position = pos
+		
+		instance.set_target(get_tree().current_scene.get_node("Player"))
+		
 		get_tree().current_scene.add_child(instance)
-		trace("enemy spawned at " + str(Vector3(
-			float(args[1]),
-			float(args[2]),
-			float(args[3])
-		)))
+		trace("enemy spawned at " + str(pos))
 
 func cls(_args):
 	$Label.text = ""
 	
+
+func reload(_args):
+	get_tree().reload_current_scene()
+
+

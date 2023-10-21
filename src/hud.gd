@@ -6,8 +6,6 @@ var player
 func _ready() -> void:
 	player = get_parent().get_parent().get_parent().get_parent()
 	$HealthBar.max_value = player.data.MAX_HEALTH
-	
-	#$ProgressBar.value = player.data.MAX_HEALTH
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -30,4 +28,6 @@ func _process(delta: float) -> void:
 		$deathstuff.visible = true
 	else:
 		$deathstuff.visible = false
+	
+	$FpsLabel.text = "FPS:%s" % Engine.get_frames_per_second()
 	
